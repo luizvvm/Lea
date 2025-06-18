@@ -1,0 +1,12 @@
+# Variáveis de ambiente
+.env
+
+# Pasta do ambiente virtual
+venv/
+
+# Arquivos temporários do Python
+__pycache__/
+*.pyc
+
+# Arquivos do Google Cloud (se usar credenciais diretas no futuro)
+*.json
