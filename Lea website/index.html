@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanejaBot - Seu Assistente Pessoal Inteligente no WhatsApp</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom styles and animations */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 - a bit darker for contrast */
+            color: #E2E8F0; /* Slate 200 */
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Aurora Background */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(at 20% 20%, hsla(212, 96%, 61%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 80% 20%, hsla(262, 96%, 61%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 20% 80%, hsla(282, 96%, 61%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 80%, hsla(312, 96%, 61%, 0.1) 0px, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+            animation: moveAurora 25s ease-in-out infinite;
+            transform: translateZ(0); /* Promotes GPU rendering */
+        }
+        
+        @keyframes moveAurora {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, 20px) rotate(5deg); }
+            50% { transform: translate(-10px, -20px) rotate(-5deg); }
+            75% { transform: translate(20px, -10px) rotate(3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glassmorphism {
+            background: rgba(15, 23, 42, 0.6); /* Slate 900 with 60% opacity */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* Animation for elements revealed on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Custom accordion styles */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glassmorphism">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M4 22a8 8 0 0 1 8-8h8"/><path d="M4 16.1C4 14.4 5.5 13 7.3 13h9.4c1.2 0 2.3-1.1 2.3-2.3v-1.3C19 8.2 18.2 7 17 7H7C5.2 7 4 5.2 4 4v0Z"/></svg>
+                <span class="text-xl font-bold text-slate-100">PlanejaBot</span>
+            </div>
+            <a href="https://wa.me/5511912345678?text=OlaPlanejaBot" target="_blank" class="hidden md:inline-block bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-indigo-500 transition-colors duration-300">
+                Começar Agora
+            </a>
+        </nav>
+    </header>
+
+    <main class="relative z-10">
+        <!-- 1. Hero Section -->
+        <section id="hero" class="relative py-20 md:py-32 text-center overflow-hidden">
+            <div class="container mx-auto px-6 relative z-10">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-slate-100 leading-tight reveal">
+                    Diga Adeus à Procrastinação. <br class="hidden md:block">
+                    <span class="gradient-text">Transforme seu WhatsApp no seu Assistente Pessoal Inteligente.</span>
+                </h1>
+                <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-slate-300 reveal" style="transition-delay: 100ms;">
+                    O PlanejaBot usa a inteligência do Google Gemini para te ajudar a organizar tarefas, alcançar metas e combater o estresse da desorganização. Tudo com a simplicidade de uma conversa.
+                </p>
+                <div class="mt-10 reveal" style="transition-delay: 200ms;">
+                    <a href="https://wa.me/5511912345678?text=OlaPlanejaBot" target="_blank" class="bg-indigo-600 text-white font-bold text-lg px-8 py-4 rounded-lg inline-flex items-center space-x-2 hover:bg-indigo-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-indigo-600/30">
+                        <i data-lucide="rocket" class="w-6 h-6"></i>
+                        <span>Comece a Planejar de Graça no WhatsApp</span>
+                    </a>
+                </div>
+                <div class="mt-16 max-w-4xl mx-auto reveal" style="transition-delay: 300ms;">
+                    <div class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[300px] shadow-xl">
+                        <div class="w-[148px] h-[18px] bg-gray-800 top-0 rounded-b-[1rem] left-1/2 -translate-x-1/2 absolute"></div>
+                        <div class="h-[46px] w-[3px] bg-gray-800 absolute -start-[17px] top-[124px] rounded-s-lg"></div>
+                        <div class="h-[46px] w-[3px] bg-gray-800 absolute -start-[17px] top-[178px] rounded-s-lg"></div>
+                        <div class="h-[64px] w-[3px] bg-gray-800 absolute -end-[17px] top-[142px] rounded-e-lg"></div>
+                        <div class="rounded-[2rem] overflow-hidden w-full h-full bg-slate-900">
+                            <!-- Chat content -->
+                            <div class="p-4 space-y-4 text-left text-sm">
+                                <div class="flex justify-end">
+                                    <div class="bg-indigo-500 text-white p-3 rounded-lg rounded-br-none max-w-[80%]">
+                                        Criar tarefa: Escrever o TCC e apresentar para a banca até dia 30 de novembro.
+                                    </div>
+                                </div>
+                                <div class="flex justify-start">
+                                    <div class="bg-slate-700 text-slate-200 p-3 rounded-lg rounded-bl-none max-w-[80%]">
+                                        <p>Entendido! Tarefa "Escrever o TCC e apresentar para a banca" criada com prazo para 30 de novembro. ✅</p>
+                                        <p class="mt-2">Essa parece uma meta importante! Quer que eu a quebre em passos menores para facilitar?</p>
+                                    </div>
+                                </div>
+                                 <div class="flex justify-end">
+                                    <div class="bg-indigo-500 text-white p-3 rounded-lg rounded-br-none max-w-[80%]">
+                                        Sim, por favor!
+                                    </div>
+                                </div>
+                                <div class="flex justify-start">
+                                    <div class="bg-slate-700 text-slate-200 p-3 rounded-lg rounded-bl-none max-w-[80%]">
+                                        <p>Claro! Aqui estão alguns passos sugeridos:</p>
+                                        <ul class="list-disc list-inside mt-2">
+                                            <li>Definir o tema e a estrutura</li>
+                                            <li>Pesquisar fontes e referências</li>
+                                            <li>Escrever o primeiro rascunho</li>
+                                            <li>Revisar e formatar</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Pain Points Section -->
+        <section id="problema" class="py-20 bg-slate-900/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12 reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100">A gente entende a sua <span class="gradient-text">correria</span>.</h2>
+                </div>
+                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+                    <div class="bg-slate-800/80 p-6 rounded-xl reveal">
+                        <div class="flex items-center space-x-4">
+                            <i data-lucide="loader-2" class="w-8 h-8 text-indigo-400 animate-spin"></i>
+                            <p class="text-lg text-slate-300">Você se sente sobrecarregado com tantas tarefas, prazos e provas para lembrar?</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/80 p-6 rounded-xl reveal" style="transition-delay: 100ms;">
+                        <div class="flex items-center space-x-4">
+                            <i data-lucide="coffee" class="w-8 h-8 text-indigo-400"></i>
+                            <p class="text-lg text-slate-300">A procrastinação sempre aparece naquelas tarefas mais complexas e importantes?</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/80 p-6 rounded-xl reveal" style="transition-delay: 200ms;">
+                        <div class="flex items-center space-x-4">
+                            <i data-lucide="frown" class="w-8 h-8 text-indigo-400"></i>
+                            <p class="text-lg text-slate-300">Sente que a desorganização afeta sua produtividade e até seu bem-estar?</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/80 p-6 rounded-xl reveal" style="transition-delay: 300ms;">
+                        <div class="flex items-center space-x-4">
+                            <i data-lucide="mountain" class="w-8 h-8 text-indigo-400"></i>
+                            <p class="text-lg text-slate-300">Suas grandes metas de carreira ou estudos parecem distantes por falta de um plano claro?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Solution Section -->
+        <section id="solucao" class="py-20">
+            <div class="container mx-auto px-6 text-center">
+                <div class="max-w-3xl mx-auto reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100">Seu novo centro de produtividade <br><span class="gradient-text">mora no WhatsApp.</span></h2>
+                    <p class="mt-6 text-lg text-slate-300">
+                        Chega de pular entre vários aplicativos complexos. O PlanejaBot é um chatbot inteligente, potencializado pelo Google Gemini, que transforma o caos da sua rotina em um plano de ação claro e executável. Com a facilidade de uma conversa, você organiza sua vida e foca no que realmente importa.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. How It Works Section -->
+        <section id="como-funciona" class="py-20 bg-slate-900/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100">Comece a se organizar em <span class="gradient-text">menos de 1 minuto.</span></h2>
+                </div>
+                <div class="max-w-5xl mx-auto grid md:grid-cols-3 gap-10 text-center">
+                    <div class="reveal">
+                        <div class="mx-auto w-20 h-20 bg-indigo-900/50 border-2 border-indigo-500 rounded-full flex items-center justify-center">
+                            <i data-lucide="user-plus" class="w-10 h-10 text-indigo-400"></i>
+                        </div>
+                        <h3 class="mt-6 text-xl font-bold text-slate-100">1. Adicione nosso número</h3>
+                        <p class="mt-2 text-slate-400">Clique no botão e adicione o PlanejaBot aos seus contatos.</p>
+                    </div>
+                    <div class="reveal" style="transition-delay: 200ms;">
+                        <div class="mx-auto w-20 h-20 bg-indigo-900/50 border-2 border-indigo-500 rounded-full flex items-center justify-center">
+                            <i data-lucide="message-square" class="w-10 h-10 text-indigo-400"></i>
+                        </div>
+                        <h3 class="mt-6 text-xl font-bold text-slate-100">2. Diga "Olá"</h3>
+                        <p class="mt-2 text-slate-400">Envie uma primeira mensagem para iniciar a conversa e seu onboarding.</p>
+                    </div>
+                    <div class="reveal" style="transition-delay: 400ms;">
+                        <div class="mx-auto w-20 h-20 bg-indigo-900/50 border-2 border-indigo-500 rounded-full flex items-center justify-center">
+                            <i data-lucide="check-circle-2" class="w-10 h-10 text-indigo-400"></i>
+                        </div>
+                        <h3 class="mt-6 text-xl font-bold text-slate-100">3. Comece a Planejar</h3>
+                        <p class="mt-2 text-slate-400">Crie sua primeira tarefa ou defina uma meta. É simples assim!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Features Section -->
+        <section id="funcionalidades" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100">Recursos inteligentes para uma <span class="gradient-text">vida organizada.</span></h2>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="glassmorphism p-8 rounded-2xl reveal">
+                        <i data-lucide="bot" class="w-10 h-10 text-purple-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Gerenciamento de Tarefas com IA</h3>
+                        <p class="text-slate-400">Fale o que precisa ser feito em linguagem natural. O PlanejaBot, com o poder do Gemini, entende e cria a tarefa para você. Nunca mais perca um prazo.</p>
+                    </div>
+                    <div class="glassmorphism p-8 rounded-2xl reveal" style="transition-delay: 150ms;">
+                        <i data-lucide="target" class="w-10 h-10 text-purple-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Definição de Metas Inspiradoras</h3>
+                        <p class="text-slate-400">Transforme seus sonhos em realidade. Defina metas como "Aprender Python em 2 meses" e o PlanejaBot te ajuda a manter o foco para alcançá-las.</p>
+                    </div>
+                    <div class="glassmorphism p-8 rounded-2xl reveal" style="transition-delay: 300ms;">
+                        <i data-lucide="bell-ring" class="w-10 h-10 text-purple-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Lembretes no seu App Favorito</h3>
+                        <p class="text-slate-400">Receba lembretes inteligentes e contextuais diretamente no seu WhatsApp, garantindo que você esteja sempre por dentro das suas prioridades.</p>
+                    </div>
+                    <div class="glassmorphism p-8 rounded-2xl reveal" style="transition-delay: 450ms;">
+                        <i data-lucide="pie-chart" class="w-10 h-10 text-purple-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Acompanhamento de Progresso</h3>
+                        <p class="text-slate-400">Peça para ver suas tarefas, comemore suas vitórias ao marcar tarefas como concluídas e veja seu progresso acontecer em tempo real.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 6. Differentiators Section -->
+        <section id="diferenciais" class="py-20 bg-slate-900/50">
+            <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100">Feito para <span class="gradient-text">Ação</span>, não para <span class="gradient-text">Distração</span>.</h2>
+                    <p class="mt-6 text-lg text-slate-300">Ferramentas de produtividade podem ser complexas e cheias de recursos que você nunca usa, tornando-se parte do problema. O PlanejaBot é diferente. Nossa filosofia é:</p>
+                </div>
+                <div class="space-y-6 reveal" style="transition-delay: 200ms;">
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-indigo-900/50 p-3 rounded-full"><i data-lucide="smartphone" class="w-6 h-6 text-indigo-400"></i></div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-100">Conveniência Extrema</h3>
+                            <p class="text-slate-400">Planeje sua vida onde você já passa o dia: no WhatsApp.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-indigo-900/50 p-3 rounded-full"><i data-lucide="zap" class="w-6 h-6 text-indigo-400"></i></div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-100">Simplicidade Inteligente</h3>
+                            <p class="text-slate-400">Sem curvas de aprendizado. Se você sabe conversar, você sabe usar o PlanejaBot.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-indigo-900/50 p-3 rounded-full"><i data-lucide="heart" class="w-6 h-6 text-indigo-400"></i></div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-100">Foco no Indivíduo</h3>
+                            <p class="text-slate-400">Uma experiência pessoal e motivadora, projetada para te ajudar a agir.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Target Audience Section -->
+        <section id="publico" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100">Perfeito para quem vive o <span class="gradient-text">futuro, hoje.</span></h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                    <div class="glassmorphism p-8 rounded-2xl text-center reveal">
+                        <img src="https://placehold.co/120x120/818cf8/ffffff?text=Ana" alt="Avatar da Ana, a Universitária" class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-indigo-400">
+                        <h3 class="text-2xl font-bold text-slate-100">Para você, "Ana"</h3>
+                        <p class="text-indigo-300 font-medium mb-4">A Universitária Atarefada</p>
+                        <p class="text-slate-400">Cansada de jonglar com provas e trabalhos? O PlanejaBot te ajuda a criar listas de tarefas por disciplina, quebrar projetos grandes em partes menores e nunca mais perder um prazo.</p>
+                    </div>
+                    <div class="glassmorphism p-8 rounded-2xl text-center reveal" style="transition-delay: 200ms;">
+                        <img src="https://placehold.co/120x120/c084fc/ffffff?text=Carlos" alt="Avatar do Carlos, o Jovem Profissional" class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-purple-400">
+                        <h3 class="text-2xl font-bold text-slate-100">Para você, "Carlos"</h3>
+                        <p class="text-purple-300 font-medium mb-4">O Jovem Profissional Ambicioso</p>
+                        <p class="text-slate-400">Buscando crescer na carreira, mas a desorganização atrapalha? Use o PlanejaBot para definir metas de desenvolvimento e gerenciar seus projetos, tudo em um só lugar.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Roadmap Section -->
+        <section id="futuro" class="py-20 bg-slate-900/50">
+            <div class="container mx-auto px-6 text-center">
+                <div class="max-w-3xl mx-auto reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100">Um parceiro que <span class="gradient-text">cresce com você.</span></h2>
+                    <p class="mt-6 text-lg text-slate-300">O PlanejaBot está em constante evolução! Estamos trabalhando para trazer funcionalidades incríveis que tornarão seu planejamento ainda mais poderoso. Em breve, espere por:</p>
+                    <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
+                        <div class="bg-slate-800/80 p-4 rounded-lg flex items-center space-x-3">
+                            <i data-lucide="calendar-days" class="w-6 h-6 text-indigo-400 flex-shrink-0"></i>
+                            <span class="text-slate-200">Integração com Google Calendar</span>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-lg flex items-center space-x-3">
+                            <i data-lucide="gem" class="w-6 h-6 text-indigo-400 flex-shrink-0"></i>
+                            <span class="text-slate-200">Gamificação e Recompensas</span>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-lg flex items-center space-x-3">
+                            <i data-lucide="git-fork" class="w-6 h-6 text-indigo-400 flex-shrink-0"></i>
+                            <span class="text-slate-200">Decomposição de Metas com IA</span>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-lg flex items-center space-x-3">
+                            <i data-lucide="layout-dashboard" class="w-6 h-6 text-indigo-400 flex-shrink-0"></i>
+                            <span class="text-slate-200">Dashboard Web de Produtividade</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. FAQ Section -->
+        <section id="faq" class="py-20">
+            <div class="container mx-auto px-6 max-w-4xl">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100">Tire suas <span class="gradient-text">dúvidas</span></h2>
+                </div>
+                <div class="space-y-4 reveal">
+                    <!-- FAQ Item 1 -->
+                    <div class="accordion-item glassmorphism rounded-lg">
+                        <button class="accordion-header w-full flex justify-between items-center p-6 text-left">
+                            <span class="text-lg font-semibold text-slate-100">Quanto custa o PlanejaBot?</span>
+                            <i data-lucide="chevron-down" class="w-6 h-6 text-slate-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <p class="text-slate-300 px-6 pb-6">O PlanejaBot opera em um modelo Freemium. Você pode usar todas as funcionalidades essenciais do nosso MVP gratuitamente para sempre. No futuro, ofereceremos uma versão Premium com recursos avançados para quem busca ainda mais poder.</p>
+                        </div>
+                    </div>
+                    <!-- FAQ Item 2 -->
+                    <div class="accordion-item glassmorphism rounded-lg">
+                        <button class="accordion-header w-full flex justify-between items-center p-6 text-left">
+                            <span class="text-lg font-semibold text-slate-100">Meus dados de planejamento estão seguros?</span>
+                            <i data-lucide="chevron-down" class="w-6 h-6 text-slate-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <p class="text-slate-300 px-6 pb-6">Sim. A sua privacidade é nossa prioridade. Operamos em total conformidade com a LGPD e usamos as melhores práticas de segurança para proteger suas informações. Para mais detalhes, consulte nossa <a href="#privacidade" class="text-indigo-400 hover:underline">Política de Privacidade</a>.</p>
+                        </div>
+                    </div>
+                    <!-- FAQ Item 3 -->
+                    <div class="accordion-item glassmorphism rounded-lg">
+                        <button class="accordion-header w-full flex justify-between items-center p-6 text-left">
+                            <span class="text-lg font-semibold text-slate-100">Qual a diferença para o Notion, Trello, etc.?</span>
+                            <i data-lucide="chevron-down" class="w-6 h-6 text-slate-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <p class="text-slate-300 px-6 pb-6">Enquanto essas ferramentas são incríveis e complexas, o PlanejaBot foca na simplicidade, conveniência e na inteligência de uma interface conversacional dentro do WhatsApp. É o seu planejador ágil para o dia a dia, feito para agir, não para organizar a organização.</p>
+                        </div>
+                    </div>
+                    <!-- FAQ Item 4 -->
+                    <div class="accordion-item glassmorphism rounded-lg">
+                        <button class="accordion-header w-full flex justify-between items-center p-6 text-left">
+                            <span class="text-lg font-semibold text-slate-100">Este projeto não faz parte de uma competição?</span>
+                            <i data-lucide="chevron-down" class="w-6 h-6 text-slate-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <p class="text-slate-300 px-6 pb-6">Sim! O PlanejaBot nasceu como um projeto para a 3ª Edição do Desafio Liga Jovem, com o duplo objetivo de vencer a competição e se tornar um negócio sustentável que resolve um problema real para jovens como você.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10. Final CTA Section -->
+        <section id="cta-final" class="py-20">
+            <div class="container mx-auto px-6 text-center">
+                <div class="max-w-3xl mx-auto reveal">
+                    <h2 class="text-3xl md:text-5xl font-bold text-slate-100">Pronto para dominar seu tempo e <span class="gradient-text">conquistar seus objetivos?</span></h2>
+                    <p class="mt-6 text-lg text-slate-300">Deixe a desorganização para trás. A sua jornada para uma vida mais produtiva e tranquila começa com uma simples mensagem.</p>
+                    <div class="mt-10">
+                        <a href="https://wa.me/5511912345678?text=OlaPlanejaBot" target="_blank" class="bg-indigo-600 text-white font-bold text-xl px-10 py-5 rounded-lg inline-flex items-center space-x-3 hover:bg-indigo-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-indigo-600/30">
+                            <i data-lucide="check-circle" class="w-7 h-7"></i>
+                            <span>Sim, quero começar a usar o PlanejaBot!</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 11. Footer -->
+    <footer class="relative z-10 bg-slate-900/50 border-t border-slate-800">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M4 22a8 8 0 0 1 8-8h8"/><path d="M4 16.1C4 14.4 5.5 13 7.3 13h9.4c1.2 0 2.3-1.1 2.3-2.3v-1.3C19 8.2 18.2 7 17 7H7C5.2 7 4 5.2 4 4v0Z"/></svg>
+                    <span class="text-lg font-bold text-slate-100">PlanejaBot</span>
+                </div>
+                <p class="text-sm text-slate-400 text-center">© 2025 PlanejaBot. Todos os direitos reservados. <br class="md:hidden"> Um projeto para o Desafio Liga Jovem.</p>
+                <div class="flex items-center space-x-6">
+                    <a href="#privacidade" class="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Política de Privacidade</a>
+                    <a href="#termos" class="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Termos de Uso</a>
+                    <a href="#contato" class="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Contato</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // --- Scroll Reveal Animation ---
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        revealElements.forEach(el => {
+            observer.observe(el);
+        });
+
+        // --- FAQ Accordion ---
+        const accordionItems = document.querySelectorAll('.accordion-item');
+
+        accordionItems.forEach(item => {
+            const header = item.querySelector('.accordion-header');
+            const content = item.querySelector('.accordion-content');
+            const icon = header.querySelector('i');
+
+            header.addEventListener('click', () => {
+                // Close other open accordions
+                accordionItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        const otherContent = otherItem.querySelector('.accordion-content');
+                        const otherIcon = otherItem.querySelector('.accordion-header i');
+                        otherContent.style.maxHeight = null;
+                        otherContent.style.paddingTop = '0px';
+                        otherContent.style.paddingBottom = '0px';
+                        otherIcon.style.transform = 'rotate(0deg)';
+                    }
+                });
+
+                // Toggle current accordion
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    content.style.paddingTop = '0px';
+                    content.style.paddingBottom = '0px';
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    content.style.paddingTop = '0';
+                    content.style.paddingBottom = '1.5rem'; // Corresponds to pb-6
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
