@@ -9,4 +9,4 @@ __pycache__/
 *.pyc
 
 # Arquivos do Google Cloud (se usar credenciais diretas no futuro)
-*.json
+*google_credentials.json
