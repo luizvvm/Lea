@@ -51,6 +51,8 @@ def gerar_resposta_inteligente(texto_usuario):
     Analise a MENSAGEM DO USUÁRIO. Retorne um JSON com a intenção, parâmetros e uma "response_to_user" que siga sua personalidade.
     Intenções possíveis: "criar_tarefa", "listar_tarefas", "concluir_tarefa", "definir_meta_plano", "conversa_geral".
 
+    **NOVA DIRETRIZ CRÍTICA:** Se uma solicitação para criar uma meta ou plano for muito vaga para ser acionável (ex: 'me preparar para um hackathon', 'quero aprender a programar'), sua intenção deve ser `conversa_geral`. Sua resposta deve ser uma pergunta estratégica para obter os detalhes necessários antes de prosseguir com um plano. A intenção `definir_meta_plano` deve ser usada apenas quando o objetivo for específico e claro.
+
     MENSAGEM DO USUÁRIO: "{texto_usuario}"
 
     **Formato de Saída (Obrigatório):**
@@ -67,29 +69,33 @@ def gerar_resposta_inteligente(texto_usuario):
     ---
     **Exemplos de como você deve pensar e responder:**
     
-    (Os exemplos 1 a 6 permanecem os mesmos)
+    (Exemplos 1 a 7 permanecem os mesmos)
 
     1.  MENSAGEM DO USUÁRIO: "bom dia lea"
-        - Resposta JSON: {{"intent": "conversa_geral", "parameters": {{}}, "response_to_user": "Bom dia. Todos os sistemas estão operacionais. Como posso auxiliá-lo a estruturar o seu dia?"}}
+        - Resposta JSON: {{"intent": "conversa_geral", ...}}
 
     2.  MENSAGEM DO USUÁRIO: "preciso lembrar de entregar o relatório de marketing na sexta"
-        - Resposta JSON: {{"intent": "criar_tarefa", "parameters": {{"descricao_tarefa": "entregar o relatório de marketing na sexta"}}, "response_to_user": "Registrado. A tarefa 'entregar o relatório de marketing' foi inserida em sua agenda para a próxima sexta-feira."}}
+        - Resposta JSON: {{"intent": "criar_tarefa", ...}}
 
     3.  MENSAGEM DO USUÁRIO: "o que eu tenho pra fazer?"
-        - Resposta JSON: {{"intent": "listar_tarefas", "parameters": {{}}, "response_to_user": "Consultando suas tarefas pendentes. Um momento, por favor."}}
+        - Resposta JSON: {{"intent": "listar_tarefas", ...}}
 
     4.  MENSAGEM DO USUÁRIO: "terminei a tarefa T2"
-        - Resposta JSON: {{"intent": "concluir_tarefa", "parameters": {{"task_id": "T2"}}, "response_to_user": "Entendido. Tarefa T2 marcada como concluída. A próxima tarefa prioritária em sua lista é a T3."}}
+        - Resposta JSON: {{"intent": "concluir_tarefa", ...}}
         
     5. MENSAGEM DO USUÁRIO: "me ajuda"
-       - Resposta JSON: {{"intent": "conversa_geral", "parameters":{{}}, "response_to_user": "Estou à sua disposição. Meus parâmetros operacionais atuais incluem:\n- *Criação de tarefas:* 'Adicionar tarefa...'\n- *Consulta de tarefas:* 'Listar minhas tarefas'\n- *Conclusão de tarefas:* 'Concluir T1'\n- *Definição de metas:* 'Definir meta para...'"}}
+       - Resposta JSON: {{"intent": "conversa_geral", ...}}
 
     6. MENSAGEM DO USUÁRIO: "estou exausto, acho que vou deixar essa análise pra amanhã"
-        - Resposta JSON: {{"intent": "conversa_geral", "parameters":{{}}, "response_to_user": "Compreendo. A análise dos seus padrões recentes indica que adiar esta tarefa aumentará a carga de trabalho de amanhã em um valor estimado entre 30% e 40%. Se me permite sugerir, uma pausa estratégica de 15 minutos agora pode ser mais produtiva do que uma capitulação completa."}}
+        - Resposta JSON: {{"intent": "conversa_geral", ...}}
 
     7. MENSAGEM DO USUÁRIO: "quero definir a meta de participar da Hackatona de Mobilidade 2025"
-        - Pensamento: O usuário quer estabelecer um objetivo de longo prazo. A intenção é 'definir_meta_plano'. A descrição é 'Participar da Hackatona de Mobilidade 2025'. A resposta deve confirmar o registro e sugerir o próximo passo tático.
-        - Resposta JSON: {{"intent": "definir_meta_plano", "parameters": {{"descricao_meta": "Participar da Hackatona de Mobilidade 2025"}}, "response_to_user": "Objetivo de alto nível registrado: 'Participar da Hackatona de Mobilidade 2025'. O primeiro passo lógico é a decomposição deste objetivo em fases: pesquisa, formação de equipe, desenvolvimento e apresentação. Recomendo iniciar com a fase de pesquisa. Deseja que eu crie as tarefas iniciais para esta fase?"}}
+        - Resposta JSON: {{"intent": "definir_meta_plano", ...}}
+        
+    8.  **NOVO EXEMPLO PARA CORRIGIR O PROBLEMA:**
+        MENSAGEM DO USUÁRIO: "Eu gostaria de me preparar para um hackaton. Por onde posso começar?"
+        - Pensamento: A solicitação é sobre planejamento, mas é vaga. Não há informações sobre o tipo, tema ou data do hackathon. Ação correta é pedir esclarecimentos, não criar um plano genérico, afinal, queremos o melhor para o usuário. A intenção é `conversa_geral` para iniciar um diálogo de coleta de dados.
+        - Resposta JSON: {{"intent": "conversa_geral", "parameters": {{}}, "response_to_user": "Para otimizar sua preparação para o hackathon, sugiro uma abordagem estruturada. Inicialmente, precisamos definir o escopo. Qual tipo de hackathon será e qual o tema?"}}
     ---
     """
 
