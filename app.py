@@ -6,80 +6,86 @@ from flask import Flask, request
 import os
 from twilio.rest import Client
 
-from gemini_service import gerar_resposta_inteligente
+# Nossas novas funções especialistas
+from gemini_service import analisar_solicitacao_inicial, gerar_plano_de_acao
 import sheets_service
 
 app = Flask(__name__)
 
-# Credenciais da Twilio
+# Configuração Twilio (sem mudanças)
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER")
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-# --- NOSSA NOVA MEMÓRIA DE CURTO PRAZO ---
-# Em um ambiente de produção real, usaríamos um banco de dados como Redis,
-# mas para o nosso MVP, um dicionário Python é suficiente.
+# Memória de Curto Prazo
 conversation_contexts = {}
 
 @app.route('/webhook/whatsapp', methods=['POST'])
 def whatsapp_webhook():
     message_body = request.values.get('Body', '')
     from_number = request.values.get('From', '')
-    print(f"INFO: Recebi a mensagem de {from_number}: '{message_body}'")
+    response_to_user = "Não compreendi sua solicitação. Poderia reformular?" # Resposta padrão
 
-    # --- LÓGICA DE MEMÓRIA (LEITURA) ---
-    # 1. Verificamos se há um contexto salvo para este usuário
-    user_context = conversation_contexts.get(from_number, {})
+    # 1. VERIFICAR SE HÁ UMA CONVERSA EM ANDAMENTO
+    user_context = conversation_contexts.get(from_number)
 
-    # 2. Enviamos a mensagem do usuário E o contexto para a Gemini
-    gemini_response = gerar_resposta_inteligente(message_body, user_context)
-    
-    intent = gemini_response.get('intent', 'conversa_geral')
-    response_to_user = gemini_response.get('response_to_user', "Houve uma falha no meu processamento. Por favor, tente novamente.")
-    
-    # Extrai a nova tag de contexto, se houver
-    new_context_tag = gemini_response.get('set_context_tag')
+    if user_context:
+        # --- FLUXO DE CONVERSA EXISTENTE ---
+        analise = analisar_solicitacao_inicial(message_body) # Usamos para detectar 'sim'/'não'
+        
+        if user_context['tag'] == 'awaiting_plan_confirmation' and analise['intent'] == 'confirmacao_positiva':
+            # O usuário disse 'sim' para a criação do plano.
+            
+            # Chamamos o especialista em gerar planos
+            dados_plano = user_context['data']
+            plano_gerado = gerar_plano_de_acao(dados_plano['tema'], dados_plano.get('detalhes', ''))
 
-    # Lógica de Ações (if/elif)
-    if intent == 'criar_tarefa':
-        descricao = gemini_response.get('parameters', {}).get('descricao_tarefa')
-        if descricao:
-            sheets_service.add_task_to_sheet(from_number, descricao)
-    
-    elif intent == 'listar_tarefas':
-        # (a lógica de listar tarefas permanece a mesma, com os ajustes de tom)
-        pass
+            if plano_gerado:
+                sheets_service.add_goal_to_sheet(from_number, f"Plano para: {dados_plano['tema']}")
+                sheets_service.add_tasks_from_plan(from_number, plano_gerado['tarefas_acionaveis'])
+                
+                tarefas_formatadas = "\n".join([f"▫️ {tarefa}" for tarefa in plano_gerado['tarefas_acionaveis']])
+                response_to_user = f"{plano_gerado['resumo_plano']}\n\nAdicionei as seguintes tarefas iniciais à sua lista:\n{tarefas_formatadas}"
+            else:
+                response_to_user = "Enfrentei uma dificuldade ao detalhar o plano. Poderíamos tentar novamente?"
 
-    elif intent == 'concluir_tarefa':
-        # (a lógica de concluir tarefa permanece a mesma, com os ajustes de tom)
-        pass
-
-    elif intent == 'definir_meta_plano':
-        # Agora, a descrição da meta pode vir da mensagem atual ou do contexto salvo
-        descricao_meta = gemini_response.get('parameters', {}).get('descricao_meta')
-        plano_gerado = gemini_response.get('parameters', {}).get('plano_detalhado')
-
-        # Se a Gemini gerou um plano detalhado, usamos isso como descrição
-        meta_a_salvar = plano_gerado if plano_gerado else descricao_meta
-        if meta_a_salvar:
-            sheets_service.add_goal_to_sheet(from_number, meta_a_salvar)
-
-    # --- LÓGICA DE MEMÓRIA (ESCRITA) ---
-    # 3. Atualizamos ou limpamos a memória após processar a ação
-    if new_context_tag:
-        # Se a Gemini pediu para aguardar uma resposta, salvamos o contexto
-        # Também salvamos os dados atuais para uso futuro
-        current_data = gemini_response.get('parameters', {})
-        conversation_contexts[from_number] = {"last_tag": new_context_tag, "data": current_data}
-        print(f"INFO: Contexto salvo para {from_number}: {new_context_tag}")
-    else:
-        # Se não há nova tag, a conversa foi concluída, então limpamos a memória
-        if from_number in conversation_contexts:
+            # Limpa o contexto, pois a conversa terminou
             del conversation_contexts[from_number]
-            print(f"INFO: Contexto limpo para {from_number}")
-    
-    print(f"INFO: Enviando resposta para {from_number}: '{response_to_user}'")
+
+        else:
+            # O usuário respondeu algo inesperado, então limpamos o contexto para recomeçar
+            response_to_user = "Entendido. Deixaremos o plano para depois. Como posso auxiliar agora?"
+            del conversation_contexts[from_number]
+
+    else:
+        # --- FLUXO DE UMA NOVA CONVERSA ---
+        analise = analisar_solicitacao_inicial(message_body)
+        intent = analise.get('intent')
+        data = analise.get('data', {})
+
+        if intent == 'solicitar_plano':
+            # A IA detectou um pedido de plano. O código agora faz a pergunta.
+            response_to_user = f"Compreendi que você deseja um plano para '{data.get('tema', 'seu objetivo')}'. Tenho os detalhes necessários. Deseja que eu gere o plano de ação agora?"
+            
+            # Salvamos o contexto para aguardar a confirmação
+            conversation_contexts[from_number] = {"tag": "awaiting_plan_confirmation", "data": data}
+
+        elif intent == 'listar_tarefas':
+            tasks = sheets_service.get_tasks_from_sheet(from_number)
+            if not tasks:
+                response_to_user = "Seu registro de tarefas pendentes está limpo."
+            else:
+                task_list_str = "\n".join([f"▫️ {task['Descricao']} (ID: {task['TaskID']})" for task in tasks])
+                response_to_user = f"Estas são suas diretivas pendentes:\n\n{task_list_str}"
+        
+        # ... (aqui entrariam outros intents como criar_tarefa, concluir_tarefa) ...
+
+        else: # conversa_geral
+             response_to_user = "Entendido. Como posso ser útil?"
+
+
+    # Envia a resposta final para o usuário
     try:
         client.messages.create(
             from_=TWILIO_WHATSAPP_NUMBER,
@@ -88,7 +94,7 @@ def whatsapp_webhook():
         )
         return 'OK', 200
     except Exception as e:
-        print(f"ERRO: Erro ao enviar mensagem via Twilio: {e}")
+        print(f"ERRO ao enviar mensagem via Twilio: {e}")
         return 'Error', 500
 
 if __name__ == '__main__':
