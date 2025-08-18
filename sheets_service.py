@@ -133,3 +133,40 @@ def update_task_status(user_id, task_id, new_status="Concluída"):
     except Exception as e:
         print(f"ERRO ao atualizar status da tarefa para {user_id}: {e}")
         return False
+    
+def add_goal_to_sheet(user_id, goal_description):
+    """
+    Adiciona uma nova meta à planilha do usuário, em uma aba separada.
+    """
+    if not sh:
+        raise ConnectionError("A conexão com a planilha principal falhou na inicialização.")
+
+    safe_user_id = user_id.replace('whatsapp:', '')
+    metas_sheet_name = f"{safe_user_id}_Metas"
+
+    try:
+        # Tenta encontrar a aba de metas do usuário
+        worksheet = sh.worksheet(metas_sheet_name)
+    except gspread.exceptions.WorksheetNotFound:
+        # Se não encontrar, cria uma nova aba para as metas
+        print(f"INFO: Criando nova aba de Metas para o usuário {safe_user_id}")
+        worksheet = sh.add_worksheet(title=metas_sheet_name, rows="100", cols="5")
+        # Adiciona os cabeçalhos na nova aba
+        headers = ["MetaID", "Descricao", "DataCriacao", "Prazo", "Status"]
+        worksheet.append_row(headers)
+
+    try:
+        # Gera um ID simples para a meta
+        num_rows = len(worksheet.get_all_values())
+        goal_id = f"M{num_rows}"
+        creation_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Define a nova linha com os dados da meta
+        new_row = [goal_id, goal_description, creation_date, "", "Ativa"]
+        worksheet.append_row(new_row)
+
+        print(f"INFO: Meta '{goal_description}' adicionada para o usuário {user_id}")
+        return goal_id
+    except Exception as e:
+        print(f"ERRO ao adicionar meta para {user_id}: {e}")
+        return None
