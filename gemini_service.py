@@ -21,7 +21,7 @@ generation_config = {
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-latest",
                               generation_config=generation_config)
 
-def gerar_resposta_inteligente(texto_usuario):
+def gerar_resposta_inteligente(texto_usuario, conversation_context=None):
     context_str = json.dumps(conversation_context) if conversation_context else "{}"
     
     prompt = f"""
